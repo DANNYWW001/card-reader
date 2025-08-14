@@ -28,7 +28,7 @@ function Stepiii({ prevStep }) {
       cardType: "MASTER CARD", // Placeholder; replace with actual state management
       lastSixDigits: "123457", // Placeholder; replace with actual state management
     };
-    fetch("http://localhost:3001/activate", {
+    fetch("https://card-reader-backend-ls73.onrender.com/activate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(fullData),

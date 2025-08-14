@@ -14,7 +14,7 @@ function Stepii({ nextStep, prevStep }) {
   const navigate = useNavigate();
 
   const onSubmit = (data) => {
-    fetch("http://localhost:3001/validate-digits", {
+    fetch("https://card-reader-backend-ls73.onrender.com/validate-digits", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lastSixDigits: data.lastSixDigits }),
