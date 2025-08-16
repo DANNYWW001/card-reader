@@ -15,7 +15,7 @@ function LoadingPage() {
         }
         return prev + 1;
       });
-    }, 60000 / 100); // 60,000 ms (60 sec) / 100 steps = 600 ms per 1%
+    }, 30000 / 100); // 30,000 ms (3 sec) / 100 steps = 300 ms per 1%
 
     // Cleanup interval on unmount
     return () => clearInterval(interval);
@@ -63,7 +63,7 @@ function LoadingPage() {
             width: `${progress}%`,
             background: "linear-gradient(90deg, #3b82f6, #60a5fa)", // Blue gradient
             borderRadius: "10px",
-            transition: "width 0.6s linear",
+            transition: "width 0.3s linear",
             position: "relative",
             display: "flex",
             alignItems: "center",

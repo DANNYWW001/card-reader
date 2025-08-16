@@ -1,8 +1,4 @@
-import { useNavigate } from "react-router-dom";
-
 function PendingPage({ amount }) {
-  const navigate = useNavigate();
-
   return (
     <div
       style={{
@@ -56,21 +52,6 @@ function PendingPage({ amount }) {
         }}
       >
         ${amount.toFixed(3)}
-      </button>
-      <button
-        onClick={() => navigate("/stepi")}
-        style={{
-          backgroundColor: "#4CAF50",
-          color: "white",
-          border: "none",
-          padding: "10px 20px",
-          borderRadius: "4px",
-          fontSize: "16px",
-          marginTop: "10px",
-          cursor: "pointer",
-        }}
-      >
-        Activation Portal
       </button>
     </div>
   );
