@@ -31,7 +31,7 @@ function Stepi({ nextStep }) {
         SCF ACTIVATION PORTAL
       </h2>
       <div style={{ textAlign: "left" }}>
-        <p>Select card type</p>
+        <p>Select the card type</p>
         <label
           style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}
         >
