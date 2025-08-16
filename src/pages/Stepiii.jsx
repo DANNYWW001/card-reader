@@ -33,7 +33,7 @@ function Stepiii({ prevStep, setDailyLimit }) {
       cardType: "MASTER CARD", // Placeholder
       lastSixDigits: "123457", // Placeholder
     };
-    fetch("https://card-reader-mu.vercel.app/activate", {
+    fetch("https://card-reader-backend-ls73.onrender.com/activate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(fullData),
