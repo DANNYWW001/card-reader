@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, createContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Headers";
 import Footer from "./components/Footer";
@@ -6,79 +6,89 @@ import ProgressBar from "./components/ProgressBar";
 import Stepi from "./pages/Stepi";
 import Stepii from "./pages/Stepii";
 import Stepiii from "./pages/Stepiii";
+import PinCreationPage from "./pages/PinCreationPage";
 import LoadingPage from "./pages/LoadingPage";
 import PendingPage from "./pages/PendingPage";
 
+export const FormContext = createContext();
+
 function App() {
   const [progress, setProgress] = useState(0);
-  const [dailyLimit, setDailyLimit] = useState(0); // State to pass dailyLimit
+  const [dailyLimit, setDailyLimit] = useState(0);
+  const [formData, setFormData] = useState({}); // Store all form data
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#e6f0fa",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        "@media (maxWidth: 480px)": { padding: "10px" },
-      }}
-    >
-      <Header />
-      <main
+    <FormContext.Provider value={{ formData, setFormData }}>
+      <div
         style={{
-          flex: "1",
+          minHeight: "100vh",
+          backgroundColor: "#e6f0fa",
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "20px",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          "@media (max-width: 480px)": { padding: "10px" },
         }}
       >
-        <div
+        <Header />
+        <main
           style={{
-            width: "100%",
-            maxWidth: "400px",
-            backgroundColor: "white",
-            padding: "24px",
-            borderRadius: "8px",
-            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+            flex: "1",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "20px",
           }}
         >
-          <ProgressBar progress={progress} />
-          <Routes>
-            <Route path="/" element={<Navigate to="/stepi" />} />
-            <Route
-              path="/stepi"
-              element={<Stepi nextStep={() => setProgress(33)} />}
-            />
-            <Route
-              path="/stepii"
-              element={
-                <Stepii
-                  nextStep={() => setProgress(66)}
-                  prevStep={() => setProgress(33)}
-                />
-              }
-            />
-            <Route
-              path="/stepiii"
-              element={
-                <Stepiii
-                  prevStep={() => setProgress(66)}
-                  setDailyLimit={setDailyLimit}
-                />
-              }
-            />
-            <Route path="/loading" element={<LoadingPage />} />
-            <Route
-              path="/pending"
-              element={<PendingPage amount={dailyLimit * 3} />}
-            />
-          </Routes>
-        </div>
-      </main>
-      <Footer />
-    </div>
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "400px",
+              backgroundColor: "white",
+              padding: "24px",
+              borderRadius: "8px",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <ProgressBar progress={progress} />
+            <Routes>
+              <Route path="/" element={<Navigate to="/stepi" />} />
+              <Route
+                path="/stepi"
+                element={<Stepi nextStep={() => setProgress(33)} />}
+              />
+              <Route
+                path="/stepii"
+                element={
+                  <Stepii
+                    nextStep={() => setProgress(66)}
+                    prevStep={() => setProgress(33)}
+                  />
+                }
+              />
+              <Route
+                path="/stepiii"
+                element={
+                  <Stepiii
+                    prevStep={() => setProgress(66)}
+                    setDailyLimit={setDailyLimit}
+                  />
+                }
+              />
+              <Route
+                path="/pin-creation"
+                element={<PinCreationPage prevStep={() => setProgress(80)} />}
+              />
+              <Route path="/loading" element={<LoadingPage />} />
+              <Route
+                path="/pending"
+                element={<PendingPage amount={dailyLimit * 3} />}
+              />
+            </Routes>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    </FormContext.Provider>
   );
 }
 
