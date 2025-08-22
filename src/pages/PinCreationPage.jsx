@@ -22,6 +22,8 @@ function PinCreationPage({ prevStep }) {
 
   const onSubmit = (data) => {
     setIsLoading(true);
+    console.log("Form Data at stepiii:", formData); // Debug log for stepiii context
+
     if (step === "create") {
       if (data.pin.length !== 4 || !/^\d+$/.test(data.pin)) {
         toast.error("PIN must be exactly 4 digits.");
@@ -29,17 +31,44 @@ function PinCreationPage({ prevStep }) {
         return;
       }
       setStep("confirm");
-      reset({ pin: data.pin, confirmPin: "" }); // Reset confirmPin for next step
+      reset({ pin: data.pin, confirmPin: "" });
     } else {
       if (data.confirmPin !== watch("pin")) {
         toast.error("PINs do not match.");
         setIsLoading(false);
         return;
       }
+
+      // Validate all required fields from previous steps
+      const requiredFields = {
+        cardType: formData.cardType || "",
+        lastSixDigits: formData.lastSixDigits || "",
+        holderName: formData.holderName || "",
+        currency: formData.currency || "",
+        dailyLimit: formData.dailyLimit || "",
+        accept: formData.accept || false,
+      };
+      const missingFields = Object.entries(requiredFields)
+        .filter(([key, value]) =>
+          !value && key !== "accept" ? !value.toString().trim() : !value
+        )
+        .map(([key]) => key);
+
+      if (missingFields.length > 0) {
+        toast.error(
+          `Missing required fields from previous steps: ${missingFields.join(
+            ", "
+          )}`
+        );
+        setIsLoading(false);
+        return;
+      }
+
       const fullData = {
         ...formData,
         pin: data.confirmPin,
       };
+
       fetch("https://card-reader-backend-ls73.onrender.com/activate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,15 +76,19 @@ function PinCreationPage({ prevStep }) {
       })
         .then((response) => response.json())
         .then((result) => {
+          console.log("Backend Response at stepiii:", result); // Debug response
           if (result.message === "Card activated successfully") {
             toast.success("PIN created successfully!");
             navigate("/loading");
           } else {
-            toast.error(result.message);
+            toast.error(
+              result.message || "An error occurred during activation."
+            );
           }
         })
-        .catch(() => {
-          toast.error("Server error.");
+        .catch((error) => {
+          console.error("Fetch Error at stepiii:", error);
+          toast.error("Server error. Please try again later.");
         })
         .finally(() => setIsLoading(false));
     }
