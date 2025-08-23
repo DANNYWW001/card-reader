@@ -25,36 +25,51 @@ function Stepiii({ prevStep, setDailyLimit }) {
 
   const onSubmit = (data) => {
     setIsLoading(true);
+    // Validate all fields before proceeding
+    const requiredFields = {
+      holderName: data.holderName,
+      currency: data.currency,
+      dailyLimit: data.dailyLimit,
+      accept: data.accept,
+    };
+    const missingFields = Object.entries(requiredFields)
+      .filter(([key, value]) =>
+        !value && key !== "accept" ? !value.trim() : !value
+      )
+      .map(([key]) => key);
+
+    if (missingFields.length > 0) {
+      toast.error(`Missing required fields: ${missingFields.join(", ")}`);
+      setIsLoading(false);
+      return;
+    }
+
     if (!data.accept) {
       toast.error("Please accept the terms.");
       setIsLoading(false);
       return;
     }
+
+    // Validate daily limit range
+    const limit = parseInt(data.dailyLimit);
+    if (limit > 5000 || limit < 0) {
+      toast.error("Daily limit must be between 0 and 5000.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Prepare data with placeholders
     const fullData = {
       ...data,
       cardType: "MASTER CARD", // Placeholder
       lastSixDigits: "123457", // Placeholder
     };
-    fetch("https://card-reader-backend-ls73.onrender.com/activate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(fullData),
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        if (result.message === "Card activated successfully") {
-          toast.success("Activation initiated!");
-          setDailyLimit(data.dailyLimit);
-          setFormData(fullData); // Save data to context
-          navigate("/pin-creation");
-        } else {
-          toast.error(result.message);
-        }
-      })
-      .catch(() => {
-        toast.error("Server error.");
-      })
-      .finally(() => setIsLoading(false));
+
+    // Save to context and navigate to PIN creation
+    setFormData(fullData);
+    setDailyLimit(data.dailyLimit);
+    navigate("/pin-creation");
+    setIsLoading(false); // Reset loading state after navigation
   };
 
   const currencies = [
@@ -90,8 +105,11 @@ function Stepiii({ prevStep, setDailyLimit }) {
             borderRadius: "4px",
             marginTop: "5px",
           }}
-          placeholder="e.g. gill"
+          placeholder="e.g. Jane"
         />
+        {errors.holderName && (
+          <p style={{ color: "red" }}>This field is required.</p>
+        )}
       </div>
       <div style={{ textAlign: "left" }}>
         <label>Currency Type</label>
@@ -111,6 +129,9 @@ function Stepiii({ prevStep, setDailyLimit }) {
             </option>
           ))}
         </select>
+        {errors.currency && (
+          <p style={{ color: "red" }}>This field is required.</p>
+        )}
       </div>
       <div style={{ textAlign: "left" }}>
         <label>Set Daily Limit</label>
@@ -126,6 +147,11 @@ function Stepiii({ prevStep, setDailyLimit }) {
           }}
           placeholder="max: 5000"
         />
+        {errors.dailyLimit && (
+          <p style={{ color: "red" }}>
+            Please enter a valid daily limit (0-5000).
+          </p>
+        )}
       </div>
       <div style={{ textAlign: "left" }}>
         <label style={{ display: "flex", alignItems: "center" }}>
@@ -134,9 +160,12 @@ function Stepiii({ prevStep, setDailyLimit }) {
             {...register("accept", { required: true })}
             style={{ marginRight: "10px" }}
           />
-          I accept that My debit card will be automatically connected to the
-          activation portal for pin setup
+          I accept that my debit card will be automatically connected to the
+          activation portal for PIN setup
         </label>
+        {errors.accept && (
+          <p style={{ color: "red" }}>You must accept the terms.</p>
+        )}
       </div>
       <button
         type="submit"

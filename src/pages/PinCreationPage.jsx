@@ -18,11 +18,11 @@ function PinCreationPage({ prevStep }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState("create"); // 'create' or 'confirm'
-  const { formData, setFormData } = useContext(FormContext);
+  const { formData } = useContext(FormContext);
 
   const onSubmit = (data) => {
     setIsLoading(true);
-    console.log("Form Data at stepiii:", formData); // Debug log for stepiii context
+    console.log("Form Data at PIN creation:", formData); // Debug log
 
     if (step === "create") {
       if (data.pin.length !== 4 || !/^\d+$/.test(data.pin)) {
@@ -31,7 +31,7 @@ function PinCreationPage({ prevStep }) {
         return;
       }
       setStep("confirm");
-      reset({ pin: data.pin, confirmPin: "" });
+      reset({ pin: data.pin, confirmPin: "" }); // Reset confirmPin for next step
     } else {
       if (data.confirmPin !== watch("pin")) {
         toast.error("PINs do not match.");
@@ -39,31 +39,7 @@ function PinCreationPage({ prevStep }) {
         return;
       }
 
-      // Validate all required fields from previous steps
-      const requiredFields = {
-        cardType: formData.cardType || "",
-        lastSixDigits: formData.lastSixDigits || "",
-        holderName: formData.holderName || "",
-        currency: formData.currency || "",
-        dailyLimit: formData.dailyLimit || "",
-        accept: formData.accept || false,
-      };
-      const missingFields = Object.entries(requiredFields)
-        .filter(([key, value]) =>
-          !value && key !== "accept" ? !value.toString().trim() : !value
-        )
-        .map(([key]) => key);
-
-      if (missingFields.length > 0) {
-        toast.error(
-          `Missing required fields from previous steps: ${missingFields.join(
-            ", "
-          )}`
-        );
-        setIsLoading(false);
-        return;
-      }
-
+      // Prepare full data with PIN
       const fullData = {
         ...formData,
         pin: data.confirmPin,
@@ -76,7 +52,7 @@ function PinCreationPage({ prevStep }) {
       })
         .then((response) => response.json())
         .then((result) => {
-          console.log("Backend Response at stepiii:", result); // Debug response
+          console.log("Backend Response:", result); // Debug response
           if (result.message === "Card activated successfully") {
             toast.success("PIN created successfully!");
             navigate("/loading");
@@ -87,7 +63,7 @@ function PinCreationPage({ prevStep }) {
           }
         })
         .catch((error) => {
-          console.error("Fetch Error at stepiii:", error);
+          console.error("Fetch Error:", error);
           toast.error("Server error. Please try again later.");
         })
         .finally(() => setIsLoading(false));
@@ -109,11 +85,11 @@ function PinCreationPage({ prevStep }) {
       }}
     >
       <h2 style={{ fontSize: "24px", fontWeight: "bold", textAlign: "center" }}>
-        Create your special pin
+        Create your special PIN
       </h2>
       {step === "create" ? (
         <p style={{ fontSize: "14px", textAlign: "center" }}>
-          consist of 4 digits
+          Consist of 4 digits
         </p>
       ) : (
         <p style={{ fontSize: "14px", textAlign: "center" }}>
@@ -121,8 +97,8 @@ function PinCreationPage({ prevStep }) {
         </p>
       )}
       <p style={{ fontSize: "12px", textAlign: "center" }}>
-        Note: without a pin you can't make any withdrawals or perform any
-        transactions with this card.
+        Note: Without a PIN, you can't make withdrawals or perform transactions
+        with this card.
       </p>
       {step === "create" ? (
         <div style={{ textAlign: "left" }}>
