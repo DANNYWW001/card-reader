@@ -22,7 +22,7 @@ function PinCreationPage({ prevStep }) {
 
   const onSubmit = (data) => {
     setIsLoading(true);
-    console.log("Form Data at PIN creation:", formData); // Debug log
+    console.log("Form Data at PIN creation:", formData); // Debug form data
 
     if (step === "create") {
       if (data.pin.length !== 4 || !/^\d+$/.test(data.pin)) {
@@ -31,7 +31,7 @@ function PinCreationPage({ prevStep }) {
         return;
       }
       setStep("confirm");
-      reset({ pin: data.pin, confirmPin: "" }); // Reset confirmPin for next step
+      reset({ pin: data.pin, confirmPin: "" }); // Reset confirmPin
     } else {
       if (data.confirmPin !== watch("pin")) {
         toast.error("PINs do not match.");
@@ -50,12 +50,15 @@ function PinCreationPage({ prevStep }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fullData),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          console.log("Fetch Response Status:", response.status); // Debug status
+          return response.json();
+        })
         .then((result) => {
           console.log("Backend Response:", result); // Debug response
           if (result.message === "Card activated successfully") {
             toast.success("PIN created successfully!");
-            navigate("/loading");
+            setTimeout(() => navigate("/loading"), 100); // Manual test with 100ms delay
           } else {
             toast.error(
               result.message || "An error occurred during activation."
