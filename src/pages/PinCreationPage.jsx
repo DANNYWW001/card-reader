@@ -45,6 +45,7 @@ function PinCreationPage({ prevStep }) {
         pin: data.confirmPin,
       };
 
+      console.log("Sending Data to /activate:", fullData); // Debug sent data
       fetch("https://card-reader-backend-ls73.onrender.com/activate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,24 +53,25 @@ function PinCreationPage({ prevStep }) {
       })
         .then((response) => {
           console.log("Fetch Response Status:", response.status); // Debug status
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
           return response.json();
         })
         .then((result) => {
           console.log("Backend Response:", result); // Debug response
           if (result.message === "Card activated successfully") {
             toast.success("PIN created successfully!");
-            setTimeout(() => navigate("/loading"), 100); // Manual test with 100ms delay
+            setTimeout(() => navigate("/loading"), 100); // Navigate after delay
           } else {
-            toast.error(
-              result.message || "An error occurred during activation."
-            );
+            throw new Error(result.message || "Unknown activation error");
           }
         })
         .catch((error) => {
-          console.error("Fetch Error:", error);
-          toast.error("Server error. Please try again later.");
+          console.error("Fetch or Backend Error:", error.message);
+          toast.error(error.message || "Server error. Please try again later.");
         })
-        .finally(() => setIsLoading(false));
+        .finally(() => setIsLoading(false)); // Ensure loading resets
     }
   };
 
