@@ -46,15 +46,28 @@ function PinCreationPage({ prevStep }) {
       };
 
       console.log("Sending Data to /activate:", fullData); // Debug sent data
+      console.log(
+        "Fetch URL:",
+        "https://card-reader-backend-ls73.onrender.com/activate"
+      ); // Debug URL
       fetch("https://card-reader-backend-ls73.onrender.com/activate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(fullData),
       })
         .then((response) => {
           console.log("Fetch Response Status:", response.status); // Debug status
+          console.log(
+            "Fetch Response Headers:",
+            Object.fromEntries(response.headers)
+          ); // Debug headers
+          console.log("Fetch Response Text:", response.statusText); // Debug status text
           if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(
+              `HTTP error! Status: ${response.status} - ${response.statusText}`
+            );
           }
           return response.json();
         })
@@ -72,7 +85,11 @@ function PinCreationPage({ prevStep }) {
         })
         .catch((error) => {
           console.error("Fetch or Backend Error:", error.message);
-          toast.error(error.message || "Server error. Please try again later.");
+          toast.error(
+            error.message.includes("404")
+              ? "Backend endpoint not found. Please check server status."
+              : error.message || "Server error. Please try again later."
+          );
         })
         .finally(() => setIsLoading(false)); // Ensure loading resets
     }
