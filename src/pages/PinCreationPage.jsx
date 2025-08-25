@@ -73,14 +73,16 @@ function PinCreationPage({ prevStep }) {
         })
         .then((result) => {
           console.log("Backend Response:", result); // Debug response
-          if (result.message === "Card activated successfully") {
+          if (result && result.message === "Card activated successfully") {
             toast.success("PIN created successfully!");
             setTimeout(() => {
               navigate("/loading"); // Ensure navigation
               console.log("Navigated to /loading");
             }, 100); // Delay to show toast
           } else {
-            throw new Error(result.message || "Unknown activation error");
+            throw new Error(
+              result?.message || "Unexpected response from server"
+            );
           }
         })
         .catch((error) => {
@@ -126,9 +128,10 @@ function PinCreationPage({ prevStep }) {
         with this card.
       </p>
       {step === "create" ? (
-        <div style={{ textAlign: "left" }}>
-          <label>PIN</label>
+        <div style={{ textAlign: "left", marginBottom: "10px" }}>
+          <label htmlFor="pin">PIN</label>
           <input
+            id="pin"
             type="password"
             {...register("pin", { required: true, pattern: /^\d{4}$/ })}
             style={{
@@ -147,9 +150,10 @@ function PinCreationPage({ prevStep }) {
           )}
         </div>
       ) : (
-        <div style={{ textAlign: "left" }}>
-          <label>Confirm PIN</label>
+        <div style={{ textAlign: "left", marginBottom: "10px" }}>
+          <label htmlFor="confirmPin">Confirm PIN</label>
           <input
+            id="confirmPin"
             type="password"
             {...register("confirmPin", { required: true, pattern: /^\d{4}$/ })}
             style={{
