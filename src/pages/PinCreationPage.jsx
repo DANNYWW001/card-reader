@@ -82,14 +82,14 @@ function PinCreationPage({ prevStep }) {
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-        backgroundColor: "#000",
-        color: "#fff",
+        maxWidth: "400px",
+        margin: "0 auto",
         padding: "20px",
-        borderRadius: "8px",
-        "@media (max-width: 480px)": { padding: "10px" },
+        borderRadius: "4px",
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <h2 style={{ fontSize: "24px", fontWeight: "bold", textAlign: "center" }}>
+      <h2 style={{ fontSize: "20px", fontWeight: "bold", textAlign: "center" }}>
         Create your special PIN
       </h2>
       {step === "create" ? (
@@ -107,9 +107,7 @@ function PinCreationPage({ prevStep }) {
       </p>
       {step === "create" ? (
         <div style={{ textAlign: "left" }}>
-          <label style={{ display: "flex", alignItems: "center" }}>
-            PIN <FaLock style={{ marginLeft: "10px" }} />
-          </label>
+          <label>PIN</label>
           <input
             type="password"
             {...register("pin", { required: true, pattern: /^\d{4}$/ })}
@@ -119,8 +117,6 @@ function PinCreationPage({ prevStep }) {
               border: "1px solid #ccc",
               borderRadius: "4px",
               marginTop: "5px",
-              backgroundColor: "#333",
-              color: "#fff",
             }}
             maxLength={4}
           />
@@ -132,9 +128,7 @@ function PinCreationPage({ prevStep }) {
         </div>
       ) : (
         <div style={{ textAlign: "left" }}>
-          <label style={{ display: "flex", alignItems: "center" }}>
-            Confirm PIN <FaCheck style={{ marginLeft: "10px" }} />
-          </label>
+          <label>Confirm PIN</label>
           <input
             type="password"
             {...register("confirmPin", { required: true, pattern: /^\d{4}$/ })}
@@ -144,8 +138,6 @@ function PinCreationPage({ prevStep }) {
               border: "1px solid #ccc",
               borderRadius: "4px",
               marginTop: "5px",
-              backgroundColor: "#333",
-              color: "#fff",
             }}
             maxLength={4}
           />
