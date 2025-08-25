@@ -62,7 +62,10 @@ function PinCreationPage({ prevStep }) {
           console.log("Backend Response:", result); // Debug response
           if (result.message === "Card activated successfully") {
             toast.success("PIN created successfully!");
-            setTimeout(() => navigate("/loading"), 100); // Navigate after delay
+            setTimeout(() => {
+              navigate("/loading"); // Ensure navigation
+              console.log("Navigated to /loading");
+            }, 100); // Delay to show toast
           } else {
             throw new Error(result.message || "Unknown activation error");
           }
