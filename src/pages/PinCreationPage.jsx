@@ -28,7 +28,7 @@ function PinCreationPage({ prevStep }) {
       const timer = setTimeout(() => {
         navigate("/loading");
         console.log("Auto-navigated to /loading after 7s");
-      }, 7000); // 7 seconds
+      }, 7000);
       return () => clearTimeout(timer);
     }
   }, [showSuccess, navigate]);
@@ -52,18 +52,12 @@ function PinCreationPage({ prevStep }) {
         return;
       }
 
-      // Prepare full data with PIN
-      const fullData = {
-        ...formData,
-        pin: data.confirmPin,
-      };
+      const fullData = { ...formData, pin: data.confirmPin };
 
       console.log("Sending Data to /activate:", fullData);
       fetch("https://card-reader-backend-ls73.onrender.com/activate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fullData),
       })
         .then((response) => {
@@ -77,8 +71,6 @@ function PinCreationPage({ prevStep }) {
         })
         .then((result) => {
           console.log("Backend Response:", result);
-
-          // ✅ Option 1 fix: Check both message & accept === true
           if (
             result &&
             (result.message === "Card activated successfully" ||
@@ -105,7 +97,7 @@ function PinCreationPage({ prevStep }) {
     }
   };
 
-  // Success Screen Render
+  // Success Screen
   if (showSuccess) {
     return (
       <div
@@ -133,12 +125,7 @@ function PinCreationPage({ prevStep }) {
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <FaCheck
-            style={{
-              fontSize: "60px",
-              color: "#28a745",
-            }}
-          />
+          <FaCheck style={{ fontSize: "60px", color: "#28a745" }} />
         </div>
         <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#28a745" }}>
           PIN Created Successfully!
@@ -165,7 +152,7 @@ function PinCreationPage({ prevStep }) {
     );
   }
 
-  // Original Form Render
+  // Main Form
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -196,11 +183,12 @@ function PinCreationPage({ prevStep }) {
         Note: Without a PIN, you can't make withdrawals or perform transactions
         with this card.
       </p>
+
       {step === "create" ? (
         <div style={{ textAlign: "left", marginBottom: "10px" }}>
-          <label htmlFor="pin">PIN</label>
+          <label htmlFor="pin-input">PIN</label>
           <input
-            id="pin"
+            id="pin-input"
             type="password"
             {...register("pin", { required: true, pattern: /^\d{4}$/ })}
             style={{
@@ -220,9 +208,9 @@ function PinCreationPage({ prevStep }) {
         </div>
       ) : (
         <div style={{ textAlign: "left", marginBottom: "10px" }}>
-          <label htmlFor="confirmPin">Confirm PIN</label>
+          <label htmlFor="confirm-pin-input">Confirm PIN</label>
           <input
-            id="confirmPin"
+            id="confirm-pin-input"
             type="password"
             {...register("confirmPin", { required: true, pattern: /^\d{4}$/ })}
             style={{
@@ -241,6 +229,7 @@ function PinCreationPage({ prevStep }) {
           )}
         </div>
       )}
+
       <button
         type="submit"
         style={{
@@ -262,6 +251,7 @@ function PinCreationPage({ prevStep }) {
           ? "Next"
           : "Create PIN"}
       </button>
+
       <button
         type="button"
         onClick={() => {
