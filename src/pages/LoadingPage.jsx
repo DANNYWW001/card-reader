@@ -10,12 +10,15 @@ function LoadingPage() {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(() => navigate("/pending"), 100); // Slight delay for smooth transition
+          setTimeout(() => {
+            console.log("Auto-navigated to /pending"); // from first code
+            navigate("/pending");
+          }, 100); // small delay for smooth transition
           return 100;
         }
         return prev + 1;
       });
-    }, 30000 / 100); // 30,000 ms (3 sec) / 100 steps = 300 ms per 1%
+    }, 5000 / 100); // 5 seconds total → 100 steps = 50ms per step
 
     // Cleanup interval on unmount
     return () => clearInterval(interval);
@@ -32,7 +35,6 @@ function LoadingPage() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        "@media (max-width: 480px)": { padding: "10px" },
       }}
     >
       <h2
@@ -50,21 +52,20 @@ function LoadingPage() {
         style={{
           width: "80%",
           maxWidth: "400px",
-          backgroundColor: "#d1e8ff", // Lighter Alice Blue for track
+          backgroundColor: "#d1e8ff",
           height: "20px",
           borderRadius: "10px",
           overflow: "hidden",
-          boxShadow: "0 0 10px rgba(59, 130, 246, 0.3)", // Subtle blue shadow
+          boxShadow: "0 0 10px rgba(59, 130, 246, 0.3)",
         }}
       >
         <div
           style={{
             height: "100%",
             width: `${progress}%`,
-            background: "linear-gradient(90deg, #3b82f6, #60a5fa)", // Blue gradient
+            background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
             borderRadius: "10px",
-            transition: "width 0.3s linear",
-            position: "relative",
+            transition: "width 0.05s linear", // smoother animation
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
@@ -93,6 +94,7 @@ function LoadingPage() {
       >
         Processing your request securely...
       </div>
+
       <style>
         {`
           @keyframes pulse {

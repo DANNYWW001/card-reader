@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { FaLock, FaCheck, FaArrowLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react"; // Added useEffect for timer
 import { FormContext } from "../App";
 
 function PinCreationPage({ prevStep }) {
@@ -18,7 +18,19 @@ function PinCreationPage({ prevStep }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState("create"); // 'create' or 'confirm'
+  const [showSuccess, setShowSuccess] = useState(false); // New: For success screen
   const { formData } = useContext(FormContext);
+
+  // Auto-redirect after 30s on success
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        navigate("/loading");
+        console.log("Auto-navigated to /loading after 30s");
+      }, 30000); // 30 seconds
+      return () => clearTimeout(timer); // Cleanup
+    }
+  }, [showSuccess, navigate]);
 
   const onSubmit = (data) => {
     setIsLoading(true);
@@ -75,10 +87,8 @@ function PinCreationPage({ prevStep }) {
           console.log("Backend Response:", result); // Debug response
           if (result && result.message === "Card activated successfully") {
             toast.success("PIN created successfully!");
-            setTimeout(() => {
-              navigate("/loading"); // Ensure navigation
-              console.log("Navigated to /loading");
-            }, 100); // Delay to show toast
+            setShowSuccess(true); // Show success screen instead of immediate navigate
+            setIsLoading(false); // Reset loading here
           } else {
             throw new Error(
               result?.message || "Unexpected response from server"
@@ -92,11 +102,73 @@ function PinCreationPage({ prevStep }) {
               ? "Backend endpoint not found. Please check server status."
               : error.message || "Server error. Please try again later."
           );
-        })
-        .finally(() => setIsLoading(false)); // Ensure loading resets
+          setIsLoading(false); // Ensure reset on error
+        });
     }
   };
 
+  // Success Screen Render
+  if (showSuccess) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh", // Full viewport for centering
+          textAlign: "center",
+          padding: "20px",
+          backgroundColor: "#f0f8ff", // Light blue background for success
+        }}
+      >
+        <div
+          style={{
+            width: 120,
+            height: 120,
+            borderRadius: "50%",
+            backgroundColor: "#d4edda", // Light green circle
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "20px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <FaCheck
+            style={{
+              fontSize: "60px", // Large green check
+              color: "#28a745", // Green color
+            }}
+          />
+        </div>
+        <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#28a745" }}>
+          PIN Created Successfully!
+        </h2>
+        <p style={{ fontSize: "16px", color: "#666", marginTop: "10px" }}>
+          You can now make withdrawals or perform transactions with this card.
+          Redirecting in 30 seconds...
+        </p>
+        {/* Optional: Manual redirect button */}
+        <button
+          onClick={() => navigate("/loading")}
+          style={{
+            backgroundColor: "#28a745",
+            color: "white",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "4px",
+            cursor: "pointer",
+            marginTop: "20px",
+          }}
+        >
+          Go to Loading Now
+        </button>
+      </div>
+    );
+  }
+
+  // Original Form Render (unchanged except for minor tweaks)
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
