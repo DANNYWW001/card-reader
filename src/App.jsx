@@ -1,6 +1,6 @@
 import { useState, createContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Header from "./components/Header";
+import Header from "./components/Headers";
 import Footer from "./components/Footer";
 import Stepi from "./pages/Stepi";
 import Stepii from "./pages/Stepii";
