@@ -1,4 +1,17 @@
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+
 function PendingPage({ amount }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigate("/admin");
+    }, 3000); // Auto-redirect after 3 seconds
+
+    return () => clearTimeout(timer); // Cleanup timer
+  }, [navigate]);
+
   return (
     <div
       style={{
