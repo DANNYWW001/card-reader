@@ -1,22 +1,21 @@
 import { useState, createContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Header from "./components/Headers";
+import Header from "./components/Header";
 import Footer from "./components/Footer";
-import ProgressBar from "./components/ProgressBar";
 import Stepi from "./pages/Stepi";
 import Stepii from "./pages/Stepii";
 import Stepiii from "./pages/Stepiii";
 import PinCreationPage from "./pages/PinCreationPage";
 import LoadingPage from "./pages/LoadingPage";
 import PendingPage from "./pages/PendingPage";
-import AdminPage from "./pages/AdminPage"; // New import
+import AdminPage from "./pages/AdminPage";
 
 export const FormContext = createContext();
 
 function App() {
   const [progress, setProgress] = useState(0);
   const [dailyLimit, setDailyLimit] = useState(0);
-  const [formData, setFormData] = useState({}); // Store all form data
+  const [formData, setFormData] = useState({});
 
   return (
     <FormContext.Provider value={{ formData, setFormData }}>
@@ -47,10 +46,20 @@ function App() {
               backgroundColor: "white",
               padding: "24px",
               borderRadius: "8px",
-              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <ProgressBar progress={progress} />
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "16px",
+                fontWeight: "bold",
+                marginBottom: "20px",
+                color: "#333",
+              }}
+            >
+              Progress: {progress}% Complete
+            </div>
             <Routes>
               <Route path="/" element={<Navigate to="/stepi" />} />
               <Route
@@ -84,7 +93,7 @@ function App() {
                 path="/pending"
                 element={<PendingPage amount={dailyLimit * 3} />}
               />
-              <Route path="/admin" element={<AdminPage />} /> // New route
+              <Route path="/admin" element={<AdminPage />} />
             </Routes>
           </div>
         </main>
